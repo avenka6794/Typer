@@ -1,8 +1,8 @@
 module.exports = function(mongoose) {
-    var User = new Schema({
+    var User = new mongoose.Schema({
+        email: String,
         username: String,
         password: String,
-        id: String,
         score: Number
     });
     // declare seat covers here too

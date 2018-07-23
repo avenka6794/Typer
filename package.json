@@ -1,0 +1,29 @@
+{
+  "name": "typer",
+  "version": "1.0.0",
+  "description": "Simple typing game",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avenka6794/Typer.git"
+  },
+  "author": "Abhishek Venkat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/avenka6794/Typer/issues"
+  },
+  "homepage": "https://github.com/avenka6794/Typer#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "latest",
+    "express-session": "^1.15.6",
+    "express-validator": "latest",
+    "mongoose": "^5.2.4",
+    "mustache-express": "^1.2.7",
+    "socket.io": "latest"
+  }
+}

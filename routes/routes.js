@@ -1,13 +1,80 @@
 var express = require('express');
 var router = express.Router();
 var path = require('path');
+const { check, validationResult } = require('express-validator/check');
+var mongoose = require('mongoose');
+var models = require('../models/models.js')(mongoose)
+
+mongoose.connect('mongodb://avenka6794:as70rv65@ds147461.mlab.com:47461/typer', { useNewUrlParser: true });
+
+router.get('/', (req, res) => {
+  console.log(req.session);
+  if(!req.session.user){
+    req.session.user = "anonymous";
+  }
+  res.render('index', {user: req.session.user})
+
+
+
+})
 
 router.get('/login', (req, res) => {
-        res.sendFile('login.html', {root: path.resolve(__dirname, '../client')})
+        res.render('login');
 });
 
-router.get('/signup', (req, res) => {
-    res.sendFile('signup.html', {root: path.resolve(__dirname, '../client')})
+
+router.post('/register', [
+  check('email').isEmail().custom((val) => {
+    return models.User.findOne({email: val}).then((usr) => {
+      if (usr) {
+        return Promise.reject('E-mail already in use');
+   }
+    });
+  }),
+  check('password').isLength({ min: 5 })
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    var err = errors.array();
+    err = err.map((e) => {
+      return e.param + " - " + e.msg;
+    })
+    return res.render('login', {error: err.join(", ")});
+  }
+  var user = new models.User({
+    email: req.body.email,
+    username: req.body.username,
+    password: req.body.password,
+    score: 0
+  });
+  user.save(function (err, user) {
+    if (err) return console.error(err);
+    req.session.user = req.body.username;
+    res.redirect("/")
+  });
 });
+
+router.post('/login', [
+  check('username').custom((val,  { req }) => {
+    return models.User.findOne({username: val, password: req.body.password}).then((usr) => {
+      if (!usr) {
+        return Promise.reject('Invalid Credentials');
+   }
+    });
+  })
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    var err = errors.array();
+    err = err.map((e) => {
+      return e.msg;
+    })
+    return res.render('login', {error: err.join(", ")});
+  }
+req.session.user = req.body.username;
+res.redirect("/")
+});
+
+
 
 module.exports = router;
