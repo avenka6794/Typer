@@ -1,9 +1,14 @@
 var express = require('express');
-var routes = require('./routes/routes.js')
+
 var path = require('path');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var mustacheExpress = require('mustache-express')
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://avenka6794:as70rv65@ds147461.mlab.com:47461/typer', { useNewUrlParser: true });
+
+var routes = require('./routes/routes.js')(mongoose)
 
 var app = express();
 
