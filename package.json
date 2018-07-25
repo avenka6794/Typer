@@ -24,6 +24,7 @@
     "express-validator": "latest",
     "mongoose": "^5.2.4",
     "mustache-express": "^1.2.7",
-    "socket.io": "latest"
+    "socket.io": "latest",
+    "uuid": "^3.3.2"
   }
 }

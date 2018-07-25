@@ -9,25 +9,31 @@ module.exports = function (mongoose){
 
   router.get('/', (req, res) => {
 
-    if(!req.session.user){
-      req.session.user = "anonymous";
-    }
-    res.render('index', {user: req.session.user})
+      models.User.findOne({ username: req.session.user }).then((usr) => {
+          if(usr){
+              res.render("index", {user: usr.username, score: usr.score, logged: true})
+          }else{
+              res.render("index", {user: "anon", score: 0, logged: false})
+          }
 
-
-
+      })
   })
 
   router.get('/login', (req, res) => {
           res.render('login');
   });
 
+  router.get('/game', (req, res) => {
+      res.send(req.query.q);
+  })
+
 
   router.post('/register', [
-    check('email').isEmail().custom((val) => {
-      return models.User.findOne({email: val}).then((usr) => {
+    check('email').isEmail(),
+    check('username').custom((val) => {
+      return models.User.findOne({username: val}).then((usr) => {
         if (usr) {
-          return Promise.reject('E-mail already in use');
+          return Promise.reject('Username already in use');
      }
       });
     }),
@@ -71,11 +77,16 @@ module.exports = function (mongoose){
       })
       return res.render('login', {error: err.join(", ")});
     }
-  req.session.user = req.body.username;
-  res.redirect("/")
+
+    req.session.user = req.body.username;
+    res.redirect("/");
+
   });
 
-
+  router.get('/logout', (req, res) => {
+      req.session.destroy();
+      res.redirect("/login");
+  })
 
   return router;
 
