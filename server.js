@@ -102,7 +102,7 @@ gameSpace.on("connection", function(socket){
 
         if(games[gameIndex].status == "waiting"){
 
-            games[gameIndex].players.push({user: data.user, score: 0})
+            games[gameIndex].players.push({user: data.user, score: 0, ready: false})
 
             lobbySpace.emit("games", games);
 
@@ -112,6 +112,41 @@ gameSpace.on("connection", function(socket){
         }else{
             socket.emit('msg', 'Game has already started')
         }
+    })
+
+    socket.on("player ready", (data)=>{
+
+      gameIndex = games.findIndex((game)=>{
+          return game.id == data.id
+      })
+
+      if(games[gameIndex].status == "waiting"){
+
+        var gamePlayers = games[gameIndex].players;
+
+          var playerIndex =  gamePlayers.findIndex((player) => {
+            return player.user == data.user
+          })
+
+          games[gameIndex].players[playerIndex].ready = true;
+
+          gameSpace.to(data.id).emit("score", games[gameIndex])
+
+          var allReady = true;
+          for(var i = 0; i < games[gameIndex].players.length; i++){
+            if(!games[gameIndex].players[i].ready){
+              allReady = false;
+            }
+
+          if(allReady){
+            //change data to random word array;
+              games[gameIndex].status = "playing";
+              gameSpace.to(data.id).emit("start game", games[gameIndex])
+          }
+          }
+      }else{
+          socket.emit('msg', 'Game has already started')
+      }
     })
 })
 
