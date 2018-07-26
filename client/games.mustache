@@ -1,14 +1,88 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <title></title>
-    </head>
-    <body>
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-        <script type="text/javascript">
-            var socket = io('/gameSpace');
-        </script>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    <title>Typer</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div id="user">
+        <h1> Player: {{ user }} </h1></div>
+    <div class="score"></div>
+    <div class="text"></div>
+    <style media="screen">
+        body {
+            background: #f5f5f5;
+            font-family: "Roboto", sans-serif;
+            margin: 20px;
+        }
+
+        #user {
+            margin: 25px;
+        }
+
+        .progress {
+            width: 80%;
+            margin: 0 auto;
+            background: black;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var socket = io('/gameSpace');
+
+        //auxiliary
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        socket.on("connect", () => {
+            socket.emit("join room", {
+                id: getParameterByName("q"),
+                user: socket.id
+            });
+
+            socket.on("score", (data) => {
+                console.log(data);
+                $(".score").empty();
+                for (var i = 0; i < data.players.length; i++) {
+                    var user = data.players[i].user
+                    if(user == socket.id){
+                        user = "(You)"
+                    }else{
+                        user = "Player" + (i+1);
+                    }
+                    $(".score").append(
+                        `<div class="container">
+  <table style="width:100%" border="1">
+    <tr>
+    <th style="width: 25%; padding: 13px;"><span>${user}</span></th>
+    <th>  <div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width:${data.players[i].score}%">
+      <span class="sr-only">70% Complete</span>
+    </div>
+  </div></th>
+
+  </tr>
+    </table>
+
+
+</div>`
+                    )
+                }
+            })
+        })
+    </script>
+</body>
+
 </html>

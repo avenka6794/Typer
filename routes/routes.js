@@ -24,7 +24,7 @@ module.exports = function (mongoose){
   });
 
   router.get('/game', (req, res) => {
-      res.send(req.query.q);
+      res.render('games', {user: req.session.user || "anon"});
   })
 
 

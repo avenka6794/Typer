@@ -8,12 +8,13 @@ var uuid = require('uuid');
 
 mongoose.connect('mongodb://avenka6794:as70rv65@ds147461.mlab.com:47461/typer', { useNewUrlParser: true });
 
-var routes = require('./routes/routes.js')(mongoose)
+
 
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var routes = require('./routes/routes.js')(mongoose)
 
 app.use(session({
   secret: 'keyboard cat',
@@ -53,9 +54,10 @@ lobbySpace.on('connection', function(socket){
                   players: [],
                   id: uuid(),
                   type: "public",
-                  createdBy: data.user
+                  createdBy: data.user,
+                  status: "waiting"
               })
-              io.emit('games', games)
+              lobbySpace.emit('games', games)
           }else{
               socket.emit('msg', 'You have already made one public room!')
           }
@@ -68,7 +70,8 @@ lobbySpace.on('connection', function(socket){
           players: [],
           id: uuid(),
           type: "private",
-          createdBy: socket.id
+          createdBy: socket.id,
+          status: "waiting"
       });
       lobbySpace.emit('games', games)
   }
@@ -79,28 +82,7 @@ lobbySpace.on('connection', function(socket){
   socket.on("join", (data) => {
       var index = games.findIndex((game) => game.id == data.id)
       if(index != -1){
-          if(data.user != "anon"){
-              var userIndex = games.findIndex((game) => {
-                  var playerIndex = game.players.findIndex((player) => {
-                      return player == data.user;
-                  })
-
-                  return playerIndex != -1;
-              })
-
-              console.log(userIndex)
-
-              if(userIndex == -1){
-                  games[index].players.push(data.user);
-                  socket.emit("join success", data.id);
-              }else{
-                  socket.emit("msg","You are already part of a game!")
-
-              }
-          }else{
-              games[index].players.push(data.user);
-              socket.emit("join success", data.id);
-          }
+          socket.emit("join success", data.id);
       }else{
           socket.emit("msg","Invalid game code (try reloading page)")
       }
@@ -110,8 +92,26 @@ lobbySpace.on('connection', function(socket){
 var gameSpace = io.of('/gameSpace');
 
 gameSpace.on("connection", function(socket){
-    socket.on("join room", (id) => {
+    var gameIndex;
 
+    socket.on("join room", (data) => {
+
+        gameIndex = games.findIndex((game)=>{
+            return game.id == data.id
+        })
+
+        if(games[gameIndex].status == "waiting"){
+
+            games[gameIndex].players.push({user: data.user, score: 0})
+
+            lobbySpace.emit("games", games);
+
+            socket.join(data.id)
+
+            gameSpace.to(data.id).emit("score", games[gameIndex])
+        }else{
+            socket.emit('msg', 'Game has already started')
+        }
     })
 })
 
