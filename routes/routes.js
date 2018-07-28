@@ -3,9 +3,7 @@ var router = express.Router();
 var path = require('path');
 const { check, validationResult } = require('express-validator/check');
 
-module.exports = function (mongoose){
-  var models = require('../models/models.js')(mongoose)
-
+module.exports = function (models){
 
   router.get('/', (req, res) => {
 

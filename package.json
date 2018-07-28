@@ -4,7 +4,6 @@
   "description": "Simple typing game",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "repository": {
@@ -24,6 +23,7 @@
     "express-validator": "latest",
     "mongoose": "^5.2.4",
     "mustache-express": "^1.2.7",
+    "random-words": "^1.1.0",
     "socket.io": "latest",
     "uuid": "^3.3.2"
   }
