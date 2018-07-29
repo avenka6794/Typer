@@ -18,10 +18,11 @@
   "homepage": "https://github.com/avenka6794/Typer#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
     "express": "latest",
     "express-session": "^1.15.6",
     "express-validator": "latest",
-    "mongoose": "^5.2.4",
+    "mongoose": "^5.2.5",
     "mustache-express": "^1.2.7",
     "random-words": "^1.1.0",
     "socket.io": "latest",

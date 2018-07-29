@@ -25,6 +25,7 @@ module.exports = function (models){
       res.render('games', {user: req.session.user || "anon"});
   })
 
+  
 
   router.post('/register', [
     check('email').isEmail(),

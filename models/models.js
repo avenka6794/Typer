@@ -1,13 +1,16 @@
 module.exports = function(mongoose) {
-    var User = new mongoose.Schema({
+    var userSchema = new mongoose.Schema({
         email: String,
         username: String,
         password: String,
         score: Number
-    });
-    // declare seat covers here too
+    },
+    { collection: 'User' });
+
+    var User = mongoose.model('User', userSchema);
+
     var models = {
-      User : mongoose.model('User', User)
+      User : User
     };
     return models;
 }
